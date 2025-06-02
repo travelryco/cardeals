@@ -1,16 +1,17 @@
-import Stripe from 'stripe'
-import { loadStripe } from '@stripe/stripe-js'
+// import Stripe from 'stripe'
+// import { loadStripe } from '@stripe/stripe-js'
 
+// TODO: Re-enable Stripe integration later
 // Server-side Stripe instance
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
-  typescript: true,
-})
+// export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+//   apiVersion: '2025-05-28.basil',
+//   typescript: true,
+// })
 
-// Client-side Stripe instance
-export const getStripe = () => {
-  return loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
-}
+// Client-side Stripe instance for checkout
+// export const getStripe = () => {
+//   return loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+// }
 
 // Subscription plans
 export const SUBSCRIPTION_PLANS = {

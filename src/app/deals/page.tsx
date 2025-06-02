@@ -1,260 +1,270 @@
-import Link from 'next/link'
+import { Suspense } from 'react'
+import { Search, Filter, Car, MapPin, Calendar, Gauge } from 'lucide-react'
 import Image from 'next/image'
-import { 
-  Search, Filter, Star, Crown, ArrowRight, 
-  Calendar, MapPin, Gauge, Settings 
-} from 'lucide-react'
-import { formatPrice, getDealScoreColor, getDealScoreLabel } from '@/lib/utils'
 
-// Mock deals data - in real app this would come from Supabase
-const mockDeals = [
+type Deal = {
+  id: string
+  title: string
+  description: string
+  price: number
+  original_price?: number
+  deal_score?: number
+  make: string
+  model: string
+  year: number
+  mileage?: number
+  location: string
+  vin?: string
+  image_url?: string
+  original_post_url?: string
+  is_premium: boolean
+  is_manual: boolean
+  tags?: string[]
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+
+// Mock data for now - will connect to Supabase later
+const mockDeals: Deal[] = [
   {
     id: '1',
     title: '2018 Honda Civic Type R - Track Ready Beast',
     description: 'Pristine FK8 Type R with only 28k miles. Championship White with red accents.',
     price: 3850000, // in cents
-    originalPrice: 4200000,
-    dealScore: 9.2,
+    original_price: 4200000,
+    deal_score: 9.2,
     make: 'Honda',
     model: 'Civic Type R',
     year: 2018,
     mileage: 28000,
     location: 'Los Angeles, CA',
-    imageUrl: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=600&h=400&fit=crop',
-    isPremium: false,
-    isManual: true,
+    image_url: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=600&h=400&fit=crop',
+    is_premium: false,
+    is_manual: true,
     tags: ['track-ready', 'rare-spec', 'low-miles'],
-    createdAt: new Date('2024-01-15')
+    notes: 'Undervalued by $3,500 vs comparable listings. Rare Championship White color.',
+    created_at: '2024-01-15T00:00:00Z',
+    updated_at: '2024-01-15T00:00:00Z',
+    original_post_url: 'https://example.com'
   },
   {
     id: '2',
     title: '2020 BMW M2 Competition - Daily Track Car',
     description: 'Perfect blend of daily usability and track performance. S55 twin-turbo engine.',
     price: 5200000,
-    originalPrice: 5800000,
-    dealScore: 7.5,
+    original_price: 5800000,
+    deal_score: 7.5,
     make: 'BMW',
     model: 'M2 Competition',
     year: 2020,
     mileage: 22000,
     location: 'Seattle, WA',
-    imageUrl: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&h=400&fit=crop',
-    isPremium: false,
-    isManual: true,
+    image_url: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&h=400&fit=crop',
+    is_premium: false,
+    is_manual: true,
     tags: ['daily-track', 'twin-turbo'],
-    createdAt: new Date('2024-01-14')
+    notes: 'Market trending up. Good entry point for M2 ownership.',
+    created_at: '2024-01-14T00:00:00Z',
+    updated_at: '2024-01-14T00:00:00Z',
+    original_post_url: 'https://example.com'
   },
   {
     id: '3',
     title: '1997 Toyota Supra Turbo 6-Speed - JDM Legend',
     description: 'The holy grail of 90s JDM. Original twin-turbo 2JZ engine, 6-speed manual.',
     price: 8500000,
-    originalPrice: 9200000,
-    dealScore: 8.8,
+    original_price: 9200000,
+    deal_score: 8.8,
     make: 'Toyota',
     model: 'Supra',
     year: 1997,
     mileage: 89000,
     location: 'Miami, FL',
-    imageUrl: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600&h=400&fit=crop',
-    isPremium: true,
-    isManual: true,
+    image_url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=600&h=400&fit=crop',
+    is_premium: false,
+    is_manual: true,
     tags: ['jdm-legend', 'appreciating'],
-    createdAt: new Date('2024-01-13')
-  },
-  {
-    id: '4',
-    title: '2015 Porsche 911 GT3 - Track Weapon',
-    description: 'GT3 with PDK transmission and Sport Chrono package. Fresh from PCA inspection.',
-    price: 13500000,
-    originalPrice: 14800000,
-    dealScore: 9.5,
-    make: 'Porsche',
-    model: '911 GT3',
-    year: 2015,
-    mileage: 15000,
-    location: 'Austin, TX',
-    imageUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&h=400&fit=crop',
-    isPremium: true,
-    isManual: false,
-    tags: ['track-weapon', 'pdk'],
-    createdAt: new Date('2024-01-12')
+    notes: 'Prices have increased 20% in last 6 months. This one is priced under market.',
+    created_at: '2024-01-13T00:00:00Z',
+    updated_at: '2024-01-13T00:00:00Z',
+    original_post_url: 'https://example.com'
   }
 ]
 
-export default function DealsPage() {
-  // Filter free deals for non-premium users
-  const freeDeals = mockDeals.filter(deal => !deal.isPremium)
-  const premiumDeals = mockDeals.filter(deal => deal.isPremium)
+export default async function DealsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams
+  
+  // Get filter parameters
+  const make = params.make as string
+  const minPrice = params.minPrice ? parseInt(params.minPrice as string) : undefined
+  const maxPrice = params.maxPrice ? parseInt(params.maxPrice as string) : undefined
+  const year = params.year ? parseInt(params.year as string) : undefined
+  const search = params.search as string
+
+  // Filter deals based on search params
+  let filteredDeals = mockDeals
+
+  if (make) {
+    filteredDeals = filteredDeals.filter(deal => deal.make.toLowerCase() === make.toLowerCase())
+  }
+  if (minPrice) {
+    filteredDeals = filteredDeals.filter(deal => deal.price >= minPrice * 100)
+  }
+  if (maxPrice) {
+    filteredDeals = filteredDeals.filter(deal => deal.price <= maxPrice * 100)
+  }
+  if (year) {
+    filteredDeals = filteredDeals.filter(deal => deal.year === year)
+  }
+  if (search) {
+    const searchLower = search.toLowerCase()
+    filteredDeals = filteredDeals.filter(deal => 
+      deal.title.toLowerCase().includes(searchLower) ||
+      deal.description.toLowerCase().includes(searchLower) ||
+      deal.make.toLowerCase().includes(searchLower) ||
+      deal.model.toLowerCase().includes(searchLower)
+    )
+  }
+
+  const uniqueMakes = [...new Set(mockDeals.map(deal => deal.make))]
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Car Deals</h1>
-              <p className="text-gray-600 mt-2">
-                Discover undervalued cars and hidden gems
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <Link
-                href="/pricing"
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center space-x-2"
-              >
-                <Crown className="h-5 w-5" />
-                <span>Upgrade for Full Access</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Car Deals</h1>
+          <p className="text-gray-600">
+            Discover amazing car deals curated by our experts
+          </p>
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
-          <div className="lg:w-1/4">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center space-x-2 mb-6">
-                <Filter className="h-5 w-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-              </div>
-
-              {/* Search */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Search
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search by make, model..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+          <div className="lg:w-64 flex-shrink-0">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <Filter className="h-5 w-5 mr-2" />
+                Filters
+              </h2>
+              
+              <form method="GET" className="space-y-4">
+                {/* Search */}
+                <div>
+                  <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+                    Search
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="text"
+                      id="search"
+                      name="search"
+                      defaultValue={search || ''}
+                      placeholder="Search deals..."
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Make */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Make
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="">All Makes</option>
-                  <option value="honda">Honda</option>
-                  <option value="bmw">BMW</option>
-                  <option value="toyota">Toyota</option>
-                  <option value="porsche">Porsche</option>
-                </select>
-              </div>
+                {/* Make */}
+                <div>
+                  <label htmlFor="make" className="block text-sm font-medium text-gray-700 mb-1">
+                    Make
+                  </label>
+                  <select
+                    id="make"
+                    name="make"
+                    defaultValue={make || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">All Makes</option>
+                    {uniqueMakes.map((makeName) => (
+                      <option key={makeName} value={makeName}>
+                        {makeName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Price Range */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price Range
-                </label>
-                <div className="grid grid-cols-2 gap-2">
+                {/* Price Range */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Price Range
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      name="minPrice"
+                      defaultValue={minPrice || ''}
+                      placeholder="Min"
+                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <input
+                      type="number"
+                      name="maxPrice"
+                      defaultValue={maxPrice || ''}
+                      placeholder="Max"
+                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Year */}
+                <div>
+                  <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
+                    Year
+                  </label>
                   <input
                     type="number"
-                    placeholder="Min"
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Year Range */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Year Range
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    placeholder="From"
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <input
-                    type="number"
-                    placeholder="To"
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    id="year"
+                    name="year"
+                    defaultValue={year || ''}
+                    placeholder="e.g. 2020"
+                    min="1990"
+                    max={new Date().getFullYear() + 1}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-              </div>
 
-              {/* Manual Only */}
-              <div className="mb-6">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-gray-700">Manual transmission only</span>
-                </label>
-              </div>
-
-              {/* Premium Notice */}
-              <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 border border-yellow-200 rounded-lg p-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Crown className="h-5 w-5 text-yellow-600" />
-                  <span className="text-sm font-semibold text-yellow-800">Premium Filters</span>
-                </div>
-                <p className="text-xs text-yellow-700 mb-3">
-                  Location radius, deal score range, and advanced filters require Premium.
-                </p>
-                <Link
-                  href="/pricing"
-                  className="text-xs text-yellow-800 font-medium hover:text-yellow-900"
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
                 >
-                  Upgrade Now →
-                </Link>
-              </div>
+                  Apply Filters
+                </button>
+              </form>
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="lg:w-3/4">
-            {/* Free Deals Section */}
-            <div className="mb-12">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Free Deals</h2>
-                <span className="text-sm text-gray-600">
-                  {freeDeals.length} deals available
-                </span>
-              </div>
+          {/* Deals Grid */}
+          <div className="flex-1">
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-gray-600">
+                {filteredDeals.length} deals found
+              </p>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {freeDeals.map((deal) => (
+            <Suspense fallback={<div>Loading deals...</div>}>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredDeals.map((deal) => (
                   <DealCard key={deal.id} deal={deal} />
                 ))}
               </div>
-            </div>
+            </Suspense>
 
-            {/* Premium Deals Section */}
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-2">
-                  <Crown className="h-6 w-6 text-yellow-500" />
-                  <h2 className="text-2xl font-bold text-gray-900">Premium Deals</h2>
-                </div>
-                <span className="text-sm text-gray-600">
-                  {premiumDeals.length} premium deals
-                </span>
+            {!filteredDeals.length && (
+              <div className="text-center py-12">
+                <Car className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No deals found</h3>
+                <p className="text-gray-600">Try adjusting your filters to see more results.</p>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {premiumDeals.map((deal) => (
-                  <PremiumDealCard key={deal.id} deal={deal} />
-                ))}
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -262,26 +272,33 @@ export default function DealsPage() {
   )
 }
 
-function DealCard({ deal }: { deal: any }) {
-  const savings = deal.originalPrice ? deal.originalPrice - deal.price : 0
+function DealCard({ deal }: { deal: Deal }) {
+  const formatPrice = (cents: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(cents / 100)
+  }
+
+  const savings = deal.original_price ? deal.original_price - deal.price : 0
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
       <div className="relative">
-        <Image
-          src={deal.imageUrl}
-          alt={deal.title}
-          width={600}
-          height={300}
-          className="w-full h-48 object-cover"
-        />
-        <div className="absolute top-4 right-4 bg-black bg-opacity-80 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-1">
-          <Star className="h-4 w-4 fill-current text-yellow-400" />
-          <span>{deal.dealScore}</span>
-        </div>
-        <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-semibold ${getDealScoreColor(deal.dealScore)}`}>
-          {getDealScoreLabel(deal.dealScore)}
-        </div>
+        {deal.image_url && (
+          <Image
+            src={deal.image_url}
+            alt={deal.title}
+            width={400}
+            height={250}
+            className="w-full h-48 object-cover"
+          />
+        )}
+        {deal.deal_score && (
+          <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+            {deal.deal_score}/10
+          </div>
+        )}
       </div>
       
       <div className="p-6">
@@ -292,87 +309,60 @@ function DealCard({ deal }: { deal: any }) {
         <div className="flex items-center justify-between mb-4">
           <div>
             <span className="text-2xl font-bold text-gray-900">
-              {formatPrice(deal.price / 100)}
+              {formatPrice(deal.price)}
             </span>
-            {deal.originalPrice && (
+            {deal.original_price && (
               <span className="text-sm text-gray-500 line-through ml-2">
-                {formatPrice(deal.originalPrice / 100)}
+                {formatPrice(deal.original_price)}
               </span>
             )}
           </div>
           {savings > 0 && (
             <div className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-semibold">
-              Save {formatPrice(savings / 100)}
+              Save {formatPrice(savings)}
             </div>
           )}
         </div>
 
-        <div className="space-y-2 text-sm text-gray-600 mb-4">
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-4 w-4" />
-            <span>{deal.year} • {deal.mileage.toLocaleString()} miles</span>
+        <div className="space-y-2 text-sm text-gray-600">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Calendar className="h-4 w-4 mr-1" />
+              <span>{deal.year}</span>
+            </div>
+            <span className="font-medium">{deal.make} {deal.model}</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <MapPin className="h-4 w-4" />
+          
+          {deal.mileage && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Gauge className="h-4 w-4 mr-1" />
+                <span>{deal.mileage.toLocaleString()} miles</span>
+              </div>
+            </div>
+          )}
+          
+          <div className="flex items-center">
+            <MapPin className="h-4 w-4 mr-1" />
             <span>{deal.location}</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Settings className="h-4 w-4" />
-            <span>{deal.isManual ? 'Manual' : 'Automatic'}</span>
-          </div>
         </div>
 
-        <Link
-          href={`/deals/${deal.id}`}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg text-center font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
-        >
-          <span>View Details</span>
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-    </div>
-  )
-}
+        {deal.notes && (
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-800">{deal.notes}</p>
+          </div>
+        )}
 
-function PremiumDealCard({ deal }: { deal: any }) {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden relative">
-      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
-        <div className="text-center text-white">
-          <Crown className="h-12 w-12 mx-auto mb-4 text-yellow-400" />
-          <h3 className="text-xl font-bold mb-2">Premium Deal</h3>
-          <p className="text-sm mb-4 opacity-90">
-            Upgrade to access this exclusive deal
-          </p>
-          <Link
-            href="/pricing"
-            className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-6 py-2 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition-all duration-200"
+        <div className="mt-4">
+          <a
+            href={deal.original_post_url || '#'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg text-center font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center"
           >
-            Upgrade Now
-          </Link>
-        </div>
-      </div>
-      
-      <div className="blur-sm">
-        <Image
-          src={deal.imageUrl}
-          alt={deal.title}
-          width={600}
-          height={300}
-          className="w-full h-48 object-cover"
-        />
-        
-        <div className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {deal.title}
-          </h3>
-          <div className="text-2xl font-bold text-gray-900 mb-4">
-            {formatPrice(deal.price / 100)}
-          </div>
-          <div className="space-y-2 text-sm text-gray-600">
-            <div>{deal.year} • {deal.mileage.toLocaleString()} miles</div>
-            <div>{deal.location}</div>
-          </div>
+            View Listing
+          </a>
         </div>
       </div>
     </div>
