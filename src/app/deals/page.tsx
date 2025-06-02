@@ -1,7 +1,8 @@
 import { Suspense } from 'react'
-import { Search, Filter, Car, MapPin, Calendar, Gauge, Settings, Palette } from 'lucide-react'
+import { Car, MapPin, Calendar, Gauge, Settings, ChevronDown } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import FilterComponent from '@/components/FilterComponent'
 
 type Deal = {
   id: string
@@ -123,30 +124,28 @@ const mockDeals: Deal[] = [
   }
 ]
 
-export default async function DealsPage({
+function DealsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const params = await searchParams
-  
   // Get filter parameters
-  const make = params.make as string
-  const model = params.model as string
-  const bodyType = params.bodyType as string
-  const fuelType = params.fuelType as string
-  const drivetrain = params.drivetrain as string
-  const color = params.color as string
-  const transmission = params.transmission as string
-  const doors = params.doors ? parseInt(params.doors as string) : undefined
-  const maxAccidents = params.maxAccidents ? parseInt(params.maxAccidents as string) : undefined
-  const maxOwners = params.maxOwners ? parseInt(params.maxOwners as string) : undefined
-  const minPrice = params.minPrice ? parseInt(params.minPrice as string) : undefined
-  const maxPrice = params.maxPrice ? parseInt(params.maxPrice as string) : undefined
-  const minYear = params.minYear ? parseInt(params.minYear as string) : undefined
-  const maxYear = params.maxYear ? parseInt(params.maxYear as string) : undefined
-  const maxMileage = params.maxMileage ? parseInt(params.maxMileage as string) : undefined
-  const search = params.search as string
+  const make = searchParams.make as string
+  const model = searchParams.model as string
+  const bodyType = searchParams.bodyType as string
+  const fuelType = searchParams.fuelType as string
+  const drivetrain = searchParams.drivetrain as string
+  const color = searchParams.color as string
+  const transmission = searchParams.transmission as string
+  const doors = searchParams.doors ? parseInt(searchParams.doors as string) : undefined
+  const maxAccidents = searchParams.maxAccidents ? parseInt(searchParams.maxAccidents as string) : undefined
+  const maxOwners = searchParams.maxOwners ? parseInt(searchParams.maxOwners as string) : undefined
+  const minPrice = searchParams.minPrice ? parseInt(searchParams.minPrice as string) : undefined
+  const maxPrice = searchParams.maxPrice ? parseInt(searchParams.maxPrice as string) : undefined
+  const minYear = searchParams.minYear ? parseInt(searchParams.minYear as string) : undefined
+  const maxYear = searchParams.maxYear ? parseInt(searchParams.maxYear as string) : undefined
+  const maxMileage = searchParams.maxMileage ? parseInt(searchParams.maxMileage as string) : undefined
+  const search = searchParams.search as string
 
   // Filter deals based on search params
   let filteredDeals = mockDeals
@@ -208,14 +207,6 @@ export default async function DealsPage({
     )
   }
 
-  // Get unique values for filters
-  const uniqueMakes = [...new Set(mockDeals.map(deal => deal.make))].sort()
-  const uniqueModels = [...new Set(mockDeals.map(deal => deal.model))].sort()
-  const uniqueBodyTypes = [...new Set(mockDeals.map(deal => deal.body_type).filter(Boolean))].sort()
-  const uniqueFuelTypes = [...new Set(mockDeals.map(deal => deal.fuel_type).filter(Boolean))].sort()
-  const uniqueDrivetrains = [...new Set(mockDeals.map(deal => deal.drivetrain).filter(Boolean))].sort()
-  const uniqueColors = [...new Set(mockDeals.map(deal => deal.exterior_color).filter(Boolean))].sort()
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -228,358 +219,32 @@ export default async function DealsPage({
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Enhanced Filters Sidebar */}
+          {/* Premium Filter Sidebar */}
           <div className="lg:w-80 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Filter className="h-5 w-5 mr-2" />
-                Filters
-              </h2>
-              
-              <form method="GET" className="space-y-6">
-                {/* Search */}
-                <div>
-                  <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                    Search
-                  </label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <input
-                      type="text"
-                      id="search"
-                      name="search"
-                      defaultValue={search || ''}
-                      placeholder="Search deals..."
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-
-                {/* Vehicle Basics */}
-                <div className="border-t pt-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-                    <Car className="h-4 w-4 mr-2" />
-                    Vehicle
-                  </h3>
-                  
-                  <div className="space-y-3">
-                    {/* Make */}
-                    <div>
-                      <label htmlFor="make" className="block text-sm font-medium text-gray-700 mb-1">
-                        Make
-                      </label>
-                      <select
-                        id="make"
-                        name="make"
-                        defaultValue={make || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">All Makes</option>
-                        {uniqueMakes.map((makeName) => (
-                          <option key={makeName} value={makeName}>
-                            {makeName}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Model */}
-                    <div>
-                      <label htmlFor="model" className="block text-sm font-medium text-gray-700 mb-1">
-                        Model
-                      </label>
-                      <select
-                        id="model"
-                        name="model"
-                        defaultValue={model || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">All Models</option>
-                        {uniqueModels.map((modelName) => (
-                          <option key={modelName} value={modelName}>
-                            {modelName}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Body Type */}
-                    <div>
-                      <label htmlFor="bodyType" className="block text-sm font-medium text-gray-700 mb-1">
-                        Body Type
-                      </label>
-                      <select
-                        id="bodyType"
-                        name="bodyType"
-                        defaultValue={bodyType || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">All Types</option>
-                        {uniqueBodyTypes.map((type) => (
-                          <option key={type} value={type}>
-                            {type}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Price & Year */}
-                <div className="border-t pt-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Price & Year</h3>
-                  
-                  <div className="space-y-3">
-                    {/* Price Range */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Price Range
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="number"
-                          name="minPrice"
-                          defaultValue={minPrice || ''}
-                          placeholder="Min"
-                          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <input
-                          type="number"
-                          name="maxPrice"
-                          defaultValue={maxPrice || ''}
-                          placeholder="Max"
-                          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Year Range */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Year Range
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          type="number"
-                          name="minYear"
-                          defaultValue={minYear || ''}
-                          placeholder="Min"
-                          min="1900"
-                          max={new Date().getFullYear() + 1}
-                          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <input
-                          type="number"
-                          name="maxYear"
-                          defaultValue={maxYear || ''}
-                          placeholder="Max"
-                          min="1900"
-                          max={new Date().getFullYear() + 1}
-                          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Max Mileage */}
-                    <div>
-                      <label htmlFor="maxMileage" className="block text-sm font-medium text-gray-700 mb-1">
-                        Max Mileage
-                      </label>
-                      <select
-                        id="maxMileage"
-                        name="maxMileage"
-                        defaultValue={maxMileage || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Any Mileage</option>
-                        <option value="10000">10,000 or less</option>
-                        <option value="25000">25,000 or less</option>
-                        <option value="50000">50,000 or less</option>
-                        <option value="75000">75,000 or less</option>
-                        <option value="100000">100,000 or less</option>
-                        <option value="150000">150,000 or less</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Technical Specs */}
-                <div className="border-t pt-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Technical
-                  </h3>
-                  
-                  <div className="space-y-3">
-                    {/* Transmission */}
-                    <div>
-                      <label htmlFor="transmission" className="block text-sm font-medium text-gray-700 mb-1">
-                        Transmission
-                      </label>
-                      <select
-                        id="transmission"
-                        name="transmission"
-                        defaultValue={transmission || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Any</option>
-                        <option value="manual">Manual</option>
-                        <option value="automatic">Automatic</option>
-                      </select>
-                    </div>
-
-                    {/* Fuel Type */}
-                    <div>
-                      <label htmlFor="fuelType" className="block text-sm font-medium text-gray-700 mb-1">
-                        Fuel Type
-                      </label>
-                      <select
-                        id="fuelType"
-                        name="fuelType"
-                        defaultValue={fuelType || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">All Types</option>
-                        {uniqueFuelTypes.map((fuel) => (
-                          <option key={fuel} value={fuel}>
-                            {fuel}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Drivetrain */}
-                    <div>
-                      <label htmlFor="drivetrain" className="block text-sm font-medium text-gray-700 mb-1">
-                        Drivetrain
-                      </label>
-                      <select
-                        id="drivetrain"
-                        name="drivetrain"
-                        defaultValue={drivetrain || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">All</option>
-                        {uniqueDrivetrains.map((drive) => (
-                          <option key={drive} value={drive}>
-                            {drive}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Doors */}
-                    <div>
-                      <label htmlFor="doors" className="block text-sm font-medium text-gray-700 mb-1">
-                        Doors
-                      </label>
-                      <select
-                        id="doors"
-                        name="doors"
-                        defaultValue={doors || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Any</option>
-                        <option value="2">2 Doors</option>
-                        <option value="4">4 Doors</option>
-                        <option value="5">5 Doors</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Appearance & History */}
-                <div className="border-t pt-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-                    <Palette className="h-4 w-4 mr-2" />
-                    Appearance & History
-                  </h3>
-                  
-                  <div className="space-y-3">
-                    {/* Color */}
-                    <div>
-                      <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-1">
-                        Color
-                      </label>
-                      <select
-                        id="color"
-                        name="color"
-                        defaultValue={color || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">All Colors</option>
-                        {uniqueColors.map((colorName) => (
-                          <option key={colorName} value={colorName}>
-                            {colorName}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Max Accidents */}
-                    <div>
-                      <label htmlFor="maxAccidents" className="block text-sm font-medium text-gray-700 mb-1">
-                        Accident History
-                      </label>
-                      <select
-                        id="maxAccidents"
-                        name="maxAccidents"
-                        defaultValue={maxAccidents || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Any</option>
-                        <option value="0">No Accidents</option>
-                        <option value="1">1 or Fewer</option>
-                        <option value="2">2 or Fewer</option>
-                      </select>
-                    </div>
-
-                    {/* Max Owners */}
-                    <div>
-                      <label htmlFor="maxOwners" className="block text-sm font-medium text-gray-700 mb-1">
-                        Previous Owners
-                      </label>
-                      <select
-                        id="maxOwners"
-                        name="maxOwners"
-                        defaultValue={maxOwners || ''}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Any</option>
-                        <option value="1">1 Owner</option>
-                        <option value="2">2 or Fewer</option>
-                        <option value="3">3 or Fewer</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
-                >
-                  Apply Filters
-                </button>
-              </form>
-            </div>
+            <Suspense fallback={<div>Loading filters...</div>}>
+              <FilterComponent deals={mockDeals} />
+            </Suspense>
           </div>
 
           {/* Deals Grid */}
           <div className="flex-1">
             <div className="mb-6 flex items-center justify-between">
-              <p className="text-gray-600">
+              <p className="text-gray-600 font-medium">
                 {filteredDeals.length} deals found
               </p>
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <span>Sort by:</span>
-                <select className="border border-gray-300 rounded px-2 py-1">
-                  <option>Best Deals</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                  <option>Year: Newest</option>
-                  <option>Year: Oldest</option>
-                  <option>Mileage: Lowest</option>
-                </select>
+              <div className="flex items-center space-x-3">
+                <span className="text-sm font-medium text-gray-700">Sort by:</span>
+                <div className="relative">
+                  <select className="bg-white border border-gray-200 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
+                    <option>Best Deals</option>
+                    <option>Price: Low to High</option>
+                    <option>Price: High to Low</option>
+                    <option>Year: Newest</option>
+                    <option>Year: Oldest</option>
+                    <option>Mileage: Lowest</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                </div>
               </div>
             </div>
 
@@ -603,6 +268,16 @@ export default async function DealsPage({
       </div>
     </div>
   )
+}
+
+// Server component wrapper to handle async searchParams
+export default async function DealsPageWrapper({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams
+  return <DealsPage searchParams={params} />
 }
 
 function DealCard({ deal }: { deal: Deal }) {
