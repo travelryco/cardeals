@@ -6,8 +6,6 @@ import {
   Calendar, 
   Gauge, 
   MapPin, 
-  Car, 
-  Fuel, 
   Settings,
   Shield,
   Star,

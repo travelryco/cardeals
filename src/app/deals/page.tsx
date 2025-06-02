@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { Search, Filter, Car, MapPin, Calendar, Gauge, Fuel, Settings, Palette } from 'lucide-react'
+import { Search, Filter, Car, MapPin, Calendar, Gauge, Settings, Palette } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
