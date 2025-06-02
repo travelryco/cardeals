@@ -1,6 +1,6 @@
-# CarDeals - Modern Car Deals Platform
+# CarDeals Platform
 
-A modern, scalable car deals website built with Next.js, Supabase, and Stripe.
+A modern car deals platform built with Next.js, TypeScript, and Tailwind CSS.
 
 ## Features
 
@@ -10,6 +10,10 @@ A modern, scalable car deals website built with Next.js, Supabase, and Stripe.
 - 🔒 Premium listings locked behind paywall
 - 📧 Custom alerts and notifications
 - 🛡️ Admin panel for deal management
+- Browse car deals
+- User authentication
+- Responsive design
+- Fast and modern UI
 
 ## Tech Stack
 
@@ -71,3 +75,6 @@ Deploy to Vercel with one click:
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/cardeals)
 
 Make sure to set all environment variables in your Vercel dashboard.
+
+## Deployment Status
+- Latest deployment: Working on fixing 404 issues
