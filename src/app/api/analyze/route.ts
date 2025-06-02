@@ -348,12 +348,14 @@ async function getMarketDataFromSources(listing: ScrapedListing): Promise<Market
   
   // Determine market trend based on multiple sources
   const trends = validResults.map(d => d.marketTrend)
-  const trendCounts = {
+  const trendCounts: Record<'Rising' | 'Stable' | 'Declining', number> = {
     'Rising': trends.filter(t => t === 'Rising').length,
     'Stable': trends.filter(t => t === 'Stable').length,
     'Declining': trends.filter(t => t === 'Declining').length
   }
-  const dominantTrend = Object.entries(trendCounts).reduce((a, b) => trendCounts[a[0]] > trendCounts[b[0]] ? a : b)[0] as 'Rising' | 'Stable' | 'Declining'
+  const dominantTrend = Object.entries(trendCounts).reduce((a, b) => 
+    trendCounts[a[0] as keyof typeof trendCounts] > trendCounts[b[0] as keyof typeof trendCounts] ? a : b
+  )[0] as 'Rising' | 'Stable' | 'Declining'
   
   return {
     averagePrice: Math.round(avgPrice),
@@ -437,7 +439,7 @@ async function simulateKBBResponse(listing: ScrapedListing): Promise<MarketData>
   await new Promise(resolve => setTimeout(resolve, 500))
   
   // Calculate base price based on year, make, model
-  let basePrice = getBasePrice(listing)
+  const basePrice = getBasePrice(listing)
   
   // KBB typically provides conservative estimates
   const kbbPrice = Math.round(basePrice * 0.95)
@@ -458,7 +460,7 @@ async function simulateKBBResponse(listing: ScrapedListing): Promise<MarketData>
 async function simulateEdmundsResponse(listing: ScrapedListing): Promise<MarketData> {
   await new Promise(resolve => setTimeout(resolve, 300))
   
-  let basePrice = getBasePrice(listing)
+  const basePrice = getBasePrice(listing)
   
   // Edmunds typically provides slightly higher estimates than KBB
   const edmundsPrice = Math.round(basePrice * 1.02)
@@ -479,7 +481,7 @@ async function simulateEdmundsResponse(listing: ScrapedListing): Promise<MarketD
 async function simulateCarsComResponse(listing: ScrapedListing): Promise<MarketData> {
   await new Promise(resolve => setTimeout(resolve, 400))
   
-  let basePrice = getBasePrice(listing)
+  const basePrice = getBasePrice(listing)
   
   // Cars.com reflects actual market listings (slightly higher)
   const carsPrice = Math.round(basePrice * 1.05)
@@ -500,7 +502,7 @@ async function simulateCarsComResponse(listing: ScrapedListing): Promise<MarketD
 async function simulateNADAResponse(listing: ScrapedListing): Promise<MarketData> {
   await new Promise(resolve => setTimeout(resolve, 350))
   
-  let basePrice = getBasePrice(listing)
+  const basePrice = getBasePrice(listing)
   
   // NADA often provides middle-ground estimates
   const nadaPrice = Math.round(basePrice * 0.98)
