@@ -10,6 +10,8 @@ export function Navbar() {
 
   const navigation = [
     { name: 'Browse Deals', href: '/deals' },
+    { name: 'Analyze', href: '/analyze' },
+    { name: 'Services', href: '/services' },
     { name: 'How it Works', href: '/how-it-works' },
     { name: 'Pricing', href: '/pricing' },
   ]
