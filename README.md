@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CarDeals - Modern Car Deals Platform
 
-## Getting Started
+A modern, scalable car deals website built with Next.js, Supabase, and Stripe.
 
-First, run the development server:
+## Features
 
+- 🚗 Showcase free + premium car deals
+- 💳 Subscription-based premium content
+- 🔍 Browse/search with filters (brand, price, location, etc.)
+- 🔒 Premium listings locked behind paywall
+- 📧 Custom alerts and notifications
+- 🛡️ Admin panel for deal management
+
+## Tech Stack
+
+- **Frontend**: Next.js 15 + TypeScript + Tailwind CSS
+- **Backend**: Supabase (PostgreSQL + Auth + Storage)
+- **Payments**: Stripe
+- **Hosting**: Vercel
+- **Search**: Built-in filtering + optional Pinecone integration
+
+## Setup
+
+1. Clone and install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Set up environment variables by creating `.env.local`:
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key_here
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-## Learn More
+3. Set up Supabase:
+   - Create a new project at [supabase.com](https://supabase.com)
+   - Run the SQL migrations in `supabase/migrations/`
+   - Update your environment variables
 
-To learn more about Next.js, take a look at the following resources:
+4. Set up Stripe:
+   - Create account at [stripe.com](https://stripe.com)
+   - Get your API keys
+   - Set up webhook endpoints
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Run the development server:
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database Schema
 
-## Deploy on Vercel
+The app uses the following main tables:
+- `profiles` - User profiles and subscription status
+- `deals` - Car deal listings
+- `subscriptions` - Stripe subscription tracking
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deploy to Vercel with one click:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/cardeals)
+
+Make sure to set all environment variables in your Vercel dashboard.
