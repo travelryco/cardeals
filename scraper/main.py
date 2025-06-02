@@ -792,16 +792,8 @@ class CarfaxScraper:
                     except:
                         continue
                 
-                # Get images
+                # Images not used - skip processing for performance
                 images = []
-                try:
-                    img_elements = await page.query_selector_all('img[src*="car"], img[src*="vehicle"], img[src*="auto"]')
-                    for img in img_elements[:3]:
-                        src = await img.get_attribute('src')
-                        if src and src.startswith('http') and 'placeholder' not in src.lower():
-                            images.append(src)
-                except:
-                    pass
                 
                 # Use default values if nothing was found
                 if price == 0:
