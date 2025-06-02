@@ -239,18 +239,18 @@ export default function AnalyzePage() {
                 <CardTitle className="flex items-center gap-3">
                   <ExternalLink className="h-6 w-6" />
                   Vehicle Information
-                  {result.listingInfo.vin && (
+                  {result.listingInfo?.vin && (
                     <Badge className="bg-blue-600 text-white">
-                      VIN Verified ({result.listingInfo.confidence}% confidence)
+                      VIN Verified ({result.listingInfo?.confidence || 0}% confidence)
                     </Badge>
                   )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="mb-4">
-                  <h2 className="text-2xl font-bold text-gray-900">{result.listingInfo.title}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{result.listingInfo?.title || 'Unknown Vehicle'}</h2>
                   <p className="text-3xl font-bold text-blue-600 mt-2">
-                    ${result.listingInfo.price.toLocaleString()}
+                    ${(result.listingInfo?.price || 0).toLocaleString()}
                   </p>
                 </div>
                 
@@ -259,33 +259,33 @@ export default function AnalyzePage() {
                     <Calendar className="h-5 w-5 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Year</p>
-                      <p className="font-semibold">{result.listingInfo.year}</p>
+                      <p className="font-semibold">{result.listingInfo?.year || 'N/A'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Gauge className="h-5 w-5 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Mileage</p>
-                      <p className="font-semibold">{result.listingInfo.mileage.toLocaleString()} mi</p>
+                      <p className="font-semibold">{(result.listingInfo?.mileage || 0).toLocaleString()} mi</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-5 w-5 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Location</p>
-                      <p className="font-semibold">{result.listingInfo.location}</p>
+                      <p className="font-semibold">{result.listingInfo?.location || 'N/A'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <ExternalLink className="h-5 w-5 text-gray-500" />
                     <div>
                       <p className="text-sm text-gray-500">Dealer</p>
-                      <p className="font-semibold">{result.listingInfo.dealer}</p>
+                      <p className="font-semibold">{result.listingInfo?.dealer || 'N/A'}</p>
                     </div>
                   </div>
                 </div>
 
-                {result.listingInfo.vin && (
+                {result.listingInfo?.vin && (
                   <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                     <div className="flex items-center gap-2 text-blue-700">
                       <CheckCircle className="h-5 w-5" />
@@ -303,7 +303,7 @@ export default function AnalyzePage() {
                   <BarChart3 className="h-6 w-6" />
                   Market Analysis
                   <Badge className="bg-white/20 text-white">
-                    {result.marketAnalysis.confidence}% confidence
+                    {result.marketAnalysis?.confidence || 0}% confidence
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -317,16 +317,16 @@ export default function AnalyzePage() {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Listing Price:</span>
-                        <span className="font-bold text-blue-600">${result.listingInfo.price.toLocaleString()}</span>
+                        <span className="font-bold text-blue-600">${(result.listingInfo?.price || 0).toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Market Average:</span>
-                        <span className="font-bold">${result.marketAnalysis.averagePrice.toLocaleString()}</span>
+                        <span className="font-bold">${(result.marketAnalysis?.averagePrice || 0).toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Price Range:</span>
                         <span className="font-semibold text-gray-700">
-                          ${result.marketAnalysis.priceRange.min.toLocaleString()} - ${result.marketAnalysis.priceRange.max.toLocaleString()}
+                          ${(result.marketAnalysis?.priceRange?.min || 0).toLocaleString()} - ${(result.marketAnalysis?.priceRange?.max || 0).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -336,13 +336,13 @@ export default function AnalyzePage() {
                     <h3 className="font-semibold mb-3">Market Position</h3>
                     <div className="space-y-3">
                       <div className="p-3 bg-gray-50 rounded-lg">
-                        <p className="font-semibold text-gray-900">{result.marketAnalysis.marketPosition}</p>
+                        <p className="font-semibold text-gray-900">{result.marketAnalysis?.marketPosition || 'Unknown'}</p>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Comparable Vehicles:</span>
-                        <span className="font-semibold">{result.marketAnalysis.comparableCount}</span>
+                        <span className="font-semibold">{result.marketAnalysis?.comparableCount || 0}</span>
                       </div>
-                      {result.marketAnalysis.daysOnMarket && (
+                      {result.marketAnalysis?.daysOnMarket && (
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600">Days on Market:</span>
                           <span className="font-semibold">{result.marketAnalysis.daysOnMarket}</span>
@@ -365,15 +365,15 @@ export default function AnalyzePage() {
               <CardContent className="p-6">
                 <div className="mb-6">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className={`px-4 py-2 rounded-full font-bold text-lg ${getDealScoreColor(result.recommendations.dealScore)}`}>
-                      {result.recommendations.dealScore}/10
+                    <div className={`px-4 py-2 rounded-full font-bold text-lg ${getDealScoreColor(result.recommendations?.dealScore || 0)}`}>
+                      {result.recommendations?.dealScore || 0}/10
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">{getDealScoreLabel(result.recommendations.dealScore)}</h3>
-                      <p className="text-gray-600">{result.recommendations.priceRecommendation}</p>
+                      <h3 className="text-xl font-bold">{getDealScoreLabel(result.recommendations?.dealScore || 0)}</h3>
+                      <p className="text-gray-600">{result.recommendations?.priceRecommendation || 'No recommendation available'}</p>
                     </div>
                   </div>
-                  <Progress value={result.recommendations.dealScore * 10} className="h-3" />
+                  <Progress value={(result.recommendations?.dealScore || 0) * 10} className="h-3" />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
@@ -383,7 +383,7 @@ export default function AnalyzePage() {
                       Strengths
                     </h4>
                     <ul className="space-y-2">
-                      {result.recommendations.strengths.map((strength, index) => (
+                      {(result.recommendations?.strengths || []).map((strength, index) => (
                         <li key={index} className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">{strength}</span>
@@ -398,7 +398,7 @@ export default function AnalyzePage() {
                       Potential Concerns
                     </h4>
                     <ul className="space-y-2">
-                      {result.recommendations.risks.map((risk, index) => (
+                      {(result.recommendations?.risks || []).map((risk, index) => (
                         <li key={index} className="flex items-start gap-2">
                           <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">{risk}</span>
@@ -416,7 +416,7 @@ export default function AnalyzePage() {
                     Negotiation Insights
                   </h4>
                   <ul className="space-y-2">
-                    {result.recommendations.negotiationInsights.map((insight, index) => (
+                    {(result.recommendations?.negotiationInsights || []).map((insight, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-sm">{insight}</span>
